@@ -56,13 +56,13 @@
             </button>
         </header>
 
-        <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-0 overflow-hidden">
+        <main class="flex-1 grid grid-cols-1 lg:col-span-12 lg:grid-cols-12 gap-0 overflow-hidden">
             <aside class="lg:col-span-3 border-l border-zinc-800 p-6 overflow-y-auto custom-scrollbar glass-panel">
                 <div class="space-y-8">
                     <section>
                         <h3 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
                             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="3"/></svg>
-                            القوالب والأبعاد
+                            الأبعاد
                         </h3>
                         <div class="space-y-4">
                             <select id="preset" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none transition-all cursor-pointer">
@@ -73,14 +73,8 @@
                                 <option value="custom">أبعاد مخصصة...</option>
                             </select>
                             <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="text-[10px] text-zinc-500 block mb-1 px-1">العرض</label>
-                                    <input type="number" id="width" value="1080" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-2.5 text-center text-sm focus:border-blue-500 outline-none">
-                                </div>
-                                <div>
-                                    <label class="text-[10px] text-zinc-500 block mb-1 px-1">الارتفاع</label>
-                                    <input type="number" id="height" value="1920" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-2.5 text-center text-sm focus:border-blue-500 outline-none">
-                                </div>
+                                <input type="number" id="width" value="1080" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-2.5 text-center text-sm focus:border-blue-500 outline-none">
+                                <input type="number" id="height" value="1920" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-2.5 text-center text-sm focus:border-blue-500 outline-none">
                             </div>
                         </div>
                     </section>
@@ -88,7 +82,7 @@
                     <section>
                         <h3 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
                             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
-                            خصائص الشبكة
+                            الشبكة
                         </h3>
                         <div class="space-y-6">
                             <div>
@@ -101,9 +95,9 @@
                             <div>
                                 <div class="flex justify-between mb-2 px-1 text-sm">
                                     <span class="text-zinc-300">سماكة الخط</span>
-                                    <span id="strokeWidthVal" class="text-blue-400 font-mono">1px</span>
+                                    <span id="strokeWidthVal" class="text-blue-400 font-mono">1.5px</span>
                                 </div>
-                                <input type="range" id="strokeWidth" min="0.1" max="10" step="0.1" value="1" class="w-full">
+                                <input type="range" id="strokeWidth" min="0.5" max="10" step="0.1" value="1.5" class="w-full">
                             </div>
                         </div>
                     </section>
@@ -114,37 +108,20 @@
                             الألوان
                         </h3>
                         <div class="grid grid-cols-2 gap-4">
-                            <div class="group relative">
-                                <label class="text-[10px] text-zinc-500 block mb-2 text-center uppercase">الخلفية</label>
-                                <div class="flex items-center justify-center p-1 bg-zinc-900 border border-zinc-700 rounded-xl h-12 overflow-hidden">
-                                    <input type="color" id="bgColor" value="#000000" class="w-full h-full cursor-pointer bg-transparent border-none scale-150">
-                                </div>
-                            </div>
-                            <div class="group relative">
-                                <label class="text-[10px] text-zinc-500 block mb-2 text-center uppercase">الخطوط</label>
-                                <div class="flex items-center justify-center p-1 bg-zinc-900 border border-zinc-700 rounded-xl h-12 overflow-hidden">
-                                    <input type="color" id="lineColor" value="#333333" class="w-full h-full cursor-pointer bg-transparent border-none scale-150">
-                                </div>
-                            </div>
+                            <input type="color" id="bgColor" value="#000000" class="w-full h-12 rounded-xl bg-zinc-900 border border-zinc-700 p-1 cursor-pointer">
+                            <input type="color" id="lineColor" value="#333333" class="w-full h-12 rounded-xl bg-zinc-900 border border-zinc-700 p-1 cursor-pointer">
                         </div>
                     </section>
                 </div>
-                
-                <div class="mt-12 p-4 bg-blue-500/10 rounded-2xl border border-blue-500/20">
-                    <p class="text-xs text-blue-300 leading-relaxed">
-                        يتم تصدير كل خط كعنصر مستقل لضمان التوافق مع برامج Adobe و Sketch و Figma.
-                    </p>
-                </div>
             </aside>
 
-            <section class="lg:col-span-9 flex flex-col p-8 bg-zinc-900/30 preview-area relative">
+            <section class="lg:col-span-9 flex flex-col p-8 bg-zinc-900/30 preview-area relative min-h-[500px]">
                 <div class="flex-1 flex items-center justify-center relative">
-                    <div id="svgContainer" class="max-w-full max-h-full shadow-2xl transition-transform duration-300 transform scale-[0.95] hover:scale-100 flex items-center justify-center overflow-hidden rounded-sm ring-1 ring-white/10 bg-black">
+                    <div id="svgContainer" class="max-w-full max-h-full shadow-2xl rounded-sm ring-1 ring-white/10 bg-black overflow-hidden">
                     </div>
                 </div>
-                
                 <div class="mt-4 flex justify-between items-end text-[10px] text-zinc-600 font-mono uppercase tracking-widest">
-                    <span>المنطقة الآمنة مفعلة</span>
+                    <span>نظام الخطوط المستقلة (Lines)</span>
                     <span id="canvasStats">1080 X 1920 PX</span>
                 </div>
             </section>
@@ -167,73 +144,72 @@
             stats: document.getElementById('canvasStats')
         };
 
-        function buildSVG() {
+        function buildSVG(isDownload = false) {
             const w = parseInt(config.width.value) || 1080;
             const h = parseInt(config.height.value) || 1920;
-            const size = parseInt(config.gridSize.value) || 60;
+            const step = parseInt(config.gridSize.value) || 60;
             const bg = config.bgColor.value;
             const line = config.lineColor.value;
             const stroke = config.strokeWidth.value;
 
             let markup = `<rect width="${w}" height="${h}" fill="${bg}" />\n`;
-            markup += `<g stroke="${line}" stroke-width="${stroke}" stroke-linecap="square">\n`;
+            markup += `<g stroke="${line}" stroke-width="${stroke}" stroke-linecap="round">\n`;
 
-            for (let x = size; x < w; x += size) {
+            for (let x = step; x < w; x += step) {
                 markup += `  <line x1="${x}" y1="0" x2="${x}" y2="${h}" />\n`;
             }
-            for (let y = size; y < h; y += size) {
+            for (let y = step; y < h; y += step) {
                 markup += `  <line x1="0" y1="${y}" x2="${w}" y2="${y}" />\n`;
             }
             markup += `</g>`;
 
-            return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid shadow-inner">\n${markup}\n</svg>`;
+            const sizeAttr = isDownload ? `width="${w}" height="${h}"` : '';
+            return `<svg ${sizeAttr} viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" style="display:block;">\n${markup}\n</svg>`;
         }
 
         function refresh() {
-            const svg = buildSVG();
-            config.svgContainer.innerHTML = svg;
+            config.svgContainer.innerHTML = buildSVG(false);
             config.gridSizeVal.innerText = `${config.gridSize.value}px`;
             config.strokeWidthVal.innerText = `${config.strokeWidth.value}px`;
             config.stats.innerText = `${config.width.value} X ${config.height.value} PX`;
 
             const el = config.svgContainer.querySelector('svg');
             const ratio = config.width.value / config.height.value;
-            el.style.aspectRatio = ratio.toString();
             
-            if (ratio > 1) {
-                el.style.width = '80%';
-                el.style.height = 'auto';
+            if (window.innerWidth < 1024) {
+                el.style.width = ratio > 1 ? '90vw' : 'auto';
+                el.style.height = ratio > 1 ? 'auto' : '50vh';
             } else {
-                el.style.height = '75vh';
-                el.style.width = 'auto';
+                el.style.height = ratio > 1 ? 'auto' : '70vh';
+                el.style.width = ratio > 1 ? '50vw' : 'auto';
             }
         }
 
-        config.preset.addEventListener('change', () => {
+        config.preset.onchange = () => {
             if (config.preset.value !== "custom") {
                 const [w, h] = config.preset.value.split(',');
                 config.width.value = w;
                 config.height.value = h;
                 refresh();
             }
-        });
+        };
 
         [config.width, config.height, config.gridSize, config.strokeWidth, config.bgColor, config.lineColor].forEach(el => {
-            el.addEventListener('input', refresh);
+            el.oninput = refresh;
         });
 
-        config.downloadBtn.addEventListener('click', () => {
-            const content = buildSVG();
-            const blob = new Blob([content], { type: 'image/svg+xml' });
+        config.downloadBtn.onclick = () => {
+            const blob = new Blob([buildSVG(true)], { type: 'image/svg+xml' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `GridMaster_${config.width.value}x${config.height.value}.svg`;
+            link.download = `Grid_${config.width.value}x${config.height.value}.svg`;
             link.click();
             URL.revokeObjectURL(url);
-        });
+        };
 
-        window.addEventListener('load', refresh);
+        window.onresize = refresh;
+        window.onload = refresh;
     </script>
 </body>
 </html>
