@@ -1,9 +1,10 @@
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GridMaster Pro</title>
+    <title>GridMaster Pro | Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -14,9 +15,7 @@
             margin: 0;
             overflow-y: auto;
         }
-        input[type="range"] {
-            accent-color: #3b82f6;
-        }
+        input[type="range"] { accent-color: #3b82f6; }
         #svgContainer svg {
             box-shadow: 0 0 50px rgba(0,0,0,0.5);
             background: #000;
@@ -54,6 +53,14 @@
             border-radius: 12px;
             padding: 12px;
         }
+        .tab-trigger {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .tab-trigger.active {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
     </style>
 </head>
 <body class="antialiased pb-10">
@@ -66,20 +73,25 @@
                 <h1 class="text-lg font-bold">Grid<span class="text-blue-500">Master</span></h1>
             </div>
             <button id="downloadBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-500 transition-all active:scale-95 shadow-lg shadow-blue-900/20 text-sm">
-                تحميل SVG
+                تحميل الملف
             </button>
         </header>
 
         <main class="max-w-xl mx-auto w-full p-5 space-y-6">
-            <section class="space-y-4">
+            <div class="flex p-1 bg-zinc-900 rounded-xl border border-zinc-800">
+                <button onclick="switchTab('grid')" id="tab-grid" class="tab-trigger active flex-1 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2 text-white">
+                    الشبكات (Grids)
+                </button>
+                <button onclick="switchTab('colors')" id="tab-colors" class="tab-trigger flex-1 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2 text-zinc-400">
+                    الألوان (Colors)
+                </button>
+            </div>
+
+            <section id="commonControls" class="space-y-4">
                 <div class="flex flex-row gap-2">
                     <button class="preset-btn active flex-1 rounded-lg" data-w="1080" data-h="1920">
                         <div class="shape-preview" style="width: 12px; height: 20px; border-radius: 2px;"></div>
                         <span class="text-[9px] text-zinc-500 font-mono">9:16</span>
-                    </button>
-                    <button class="preset-btn flex-1 rounded-lg" data-w="1080" data-h="1350">
-                        <div class="shape-preview" style="width: 16px; height: 20px; border-radius: 2px;"></div>
-                        <span class="text-[9px] text-zinc-500 font-mono">4:5</span>
                     </button>
                     <button class="preset-btn flex-1 rounded-lg" data-w="1080" data-h="1080">
                         <div class="shape-preview" style="width: 18px; height: 18px; border-radius: 2px;"></div>
@@ -93,37 +105,47 @@
 
                 <div class="grid grid-cols-2 gap-2">
                     <div class="control-card">
-                        <span class="text-[10px] text-zinc-500 block mb-1 font-bold text-center">العرض الثابت</span>
-                        <input type="number" id="width" value="1080" class="w-full bg-transparent border-none p-0 text-sm text-center focus:outline-none font-mono">
+                        <span class="text-[10px] text-zinc-500 block mb-1 font-bold text-center uppercase">العرض</span>
+                        <input type="number" id="width" value="1080" class="w-full bg-transparent border-none p-0 text-sm text-center focus:outline-none font-mono text-blue-400">
                     </div>
                     <div class="control-card">
-                        <span class="text-[10px] text-zinc-500 block mb-1 font-bold text-center">الطول الثابت</span>
-                        <input type="number" id="height" value="1920" class="w-full bg-transparent border-none p-0 text-sm text-center focus:outline-none font-mono">
+                        <span class="text-[10px] text-zinc-500 block mb-1 font-bold text-center uppercase">الطول</span>
+                        <input type="number" id="height" value="1920" class="w-full bg-transparent border-none p-0 text-sm text-center focus:outline-none font-mono text-blue-400">
                     </div>
                 </div>
+            </section>
 
+            <section id="gridSettings" class="space-y-4">
                 <div class="control-card">
                     <div class="flex justify-between mb-2">
-                        <span class="text-[11px] font-bold text-zinc-400 uppercase">عدد مربعات العرض</span>
-                        <span id="gridSizeVal" class="text-blue-500 font-mono text-[11px]">4</span>
+                        <span class="text-[11px] font-bold text-zinc-400 uppercase">عدد المربعات</span>
+                        <span id="gridCountVal" class="text-blue-500 font-mono text-[11px]">4</span>
                     </div>
-                    <input type="range" id="gridCount" min="1" max="100" value="4" class="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none">
+                    <input type="range" id="gridCount" min="2" max="50" value="4" class="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none">
                 </div>
-
                 <div class="control-card">
                     <div class="flex justify-between mb-2">
                         <span class="text-[11px] font-bold text-zinc-400 uppercase">سماكة الخط</span>
                         <span id="strokeWidthVal" class="text-blue-500 font-mono text-[11px]">2px</span>
                     </div>
-                    <input type="range" id="strokeWidth" min="0.5" max="30" step="0.5" value="2" class="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none">
+                    <input type="range" id="strokeWidth" min="0.5" max="20" step="0.5" value="2" class="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none">
                 </div>
             </section>
 
-            <section class="flex flex-col items-center pt-4">
-                <div id="svgContainer" class="w-full flex items-center justify-center min-h-[400px]"></div>
-                
+            <section id="colorSettings" class="space-y-4 hidden">
+                <div class="control-card">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-[11px] font-bold text-zinc-400 uppercase font-mono">عدد الألوان</span>
+                        <span id="colorCountVal" class="text-blue-500 font-mono text-[11px]">10</span>
+                    </div>
+                    <input type="range" id="colorCount" min="2" max="20" value="10" class="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none">
+                </div>
+            </section>
+
+            <section class="flex flex-col items-center pt-2">
+                <div id="svgContainer" class="w-full flex items-center justify-center min-h-[300px]"></div>
                 <div class="w-full mt-6 flex justify-between items-center text-[10px] font-mono text-zinc-500 bg-zinc-900/50 p-3 rounded-lg border border-zinc-800">
-                    <span id="gridStats">...</span>
+                    <span id="statsLabel">...</span>
                     <span id="resStats">1080 × 1920 PX</span>
                 </div>
             </section>
@@ -131,87 +153,127 @@
     </div>
 
     <script>
-        const config = {
+        let currentTab = 'grid';
+        let colorsArr = [];
+
+        const ui = {
             width: document.getElementById('width'),
             height: document.getElementById('height'),
             gridCount: document.getElementById('gridCount'),
-            gridSizeVal: document.getElementById('gridSizeVal'),
+            gridCountVal: document.getElementById('gridCountVal'),
             strokeWidth: document.getElementById('strokeWidth'),
             strokeWidthVal: document.getElementById('strokeWidthVal'),
+            colorCount: document.getElementById('colorCount'),
+            colorCountVal: document.getElementById('colorCountVal'),
             svgContainer: document.getElementById('svgContainer'),
-            downloadBtn: document.getElementById('downloadBtn'),
-            gridStats: document.getElementById('gridStats'),
             resStats: document.getElementById('resStats'),
-            presetBtns: document.querySelectorAll('.preset-btn')
+            statsLabel: document.getElementById('statsLabel'),
+            gridSec: document.getElementById('gridSettings'),
+            colorSec: document.getElementById('colorSettings')
         };
 
-        function calculateGridParams() {
-            const w = parseInt(config.width.value) || 1080;
-            const h = parseInt(config.height.value) || 1920;
-            const cols = parseInt(config.gridCount.value);
-            
-            const cellSizeW = w / cols;
-            const rows = Math.round(h / cellSizeW);
-            const cellSizeH = h / rows;
+        function hslToHex(h, s, l) {
+            l /= 100;
+            const a = s * Math.min(l, 1 - l) / 100;
+            const f = n => {
+                const k = (n + h / 30) % 12;
+                const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+                return Math.round(255 * color).toString(16).padStart(2, '0');
+            };
+            return `#${f(0)}${f(8)}${f(4)}`;
+        }
 
-            return { w, h, cellSizeW, cellSizeH, cols, rows };
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-trigger').forEach(el => {
+                el.classList.remove('active', 'text-white');
+                el.classList.add('text-zinc-400');
+            });
+            const activeTab = document.getElementById('tab-' + tab);
+            activeTab.classList.add('active', 'text-white');
+            activeTab.classList.remove('text-zinc-400');
+            
+            if(tab === 'grid') {
+                ui.gridSec.classList.remove('hidden');
+                ui.colorSec.classList.add('hidden');
+            } else {
+                ui.gridSec.classList.add('hidden');
+                ui.colorSec.classList.remove('hidden');
+                if(colorsArr.length === 0) generateRandomColors();
+            }
+            update();
+        }
+
+        function generateRandomColors() {
+            const count = parseInt(ui.colorCount.value);
+            colorsArr = Array.from({length: count}, () => {
+                const h = Math.floor(Math.random() * 360);
+                return hslToHex(h, 80, 50);
+            });
         }
 
         function generateSVG(isDownload = false) {
-            const p = calculateGridParams();
-            const stroke = config.strokeWidth.value;
-            const bg = "#000000";
-            const line = "#333333";
-            
-            let lines = `<rect width="${p.w}" height="${p.h}" fill="${bg}" />\n<g stroke="${line}" stroke-width="${stroke}">\n`;
-            
-            for (let i = 0; i <= p.cols; i++) {
-                const x = i * p.cellSizeW;
-                lines += `<line x1="${x}" y1="0" x2="${x}" y2="${p.h}" />\n`;
+            const w = parseInt(ui.width.value) || 1080;
+            const h = parseInt(ui.height.value) || 1920;
+            let content = "";
+
+            if (currentTab === 'grid') {
+                content += `<rect width="${w}" height="${h}" fill="#000000" />`;
+                const cols = parseInt(ui.gridCount.value);
+                const cw = w / cols;
+                const rows = Math.round(h / cw);
+                const ch = h / rows;
+                const stroke = ui.strokeWidth.value;
+
+                content += `<g stroke="#333333" stroke-width="${stroke}">`;
+                for (let i = 0; i <= cols; i++) content += `<line x1="${i*cw}" y1="0" x2="${i*cw}" y2="${h}" />`;
+                for (let i = 0; i <= rows; i++) content += `<line x1="0" y1="${i*ch}" x2="${w}" y2="${i*ch}" />`;
+                content += `</g>`;
+                
+                ui.statsLabel.innerText = `الشبكة: ${cols}×${rows}`;
+            } else {
+                const count = parseInt(ui.colorCount.value);
+                const id = 'grad_' + Math.random().toString(36).substr(2,5);
+                content += `<defs><linearGradient id="${id}" x1="0" y1="0" x2="${w}" y2="${h}" gradientUnits="userSpaceOnUse">`;
+                colorsArr.forEach((c, i) => content += `<stop offset="${(i/(count-1))*100}%" stop-color="${c}" />`);
+                content += `</linearGradient></defs><rect width="${w}" height="${h}" fill="url(#${id})" />`;
+                ui.statsLabel.innerText = `الألوان: ${count}`;
             }
             
-            for (let i = 0; i <= p.rows; i++) {
-                const y = i * p.cellSizeH;
-                lines += `<line x1="0" y1="${y}" x2="${p.w}" y2="${y}" />\n`;
-            }
-            
-            lines += `</g>`;
-            const attrs = isDownload ? `width="${p.w}" height="${p.h}"` : `style="max-width:100%; max-height:70vh; height:auto;"`;
-            return `<svg ${attrs} viewBox="0 0 ${p.w} ${p.h}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">${lines}</svg>`;
+            return `<svg xmlns="http://www.w3.org/2000/svg" width="${isDownload ? w : '100%'}" height="${isDownload ? h : 'auto'}" viewBox="0 0 ${w} ${h}">${content}</svg>`;
         }
 
         function update() {
-            const p = calculateGridParams();
-            config.gridSizeVal.innerText = p.cols;
-            config.strokeWidthVal.innerText = config.strokeWidth.value + 'px';
-            config.resStats.innerText = p.w + ' × ' + p.h + ' PX';
-            config.gridStats.innerText = `الشبكة: ${p.cols}×${p.rows}`;
-            config.svgContainer.innerHTML = generateSVG(false);
+            ui.gridCountVal.innerText = ui.gridCount.value;
+            ui.strokeWidthVal.innerText = ui.strokeWidth.value + 'px';
+            ui.colorCountVal.innerText = ui.colorCount.value;
+            ui.resStats.innerText = `${ui.width.value} × ${ui.height.value} PX`;
+            ui.svgContainer.innerHTML = generateSVG(false);
         }
 
-        config.presetBtns.forEach(btn => {
+        document.querySelectorAll('.preset-btn').forEach(btn => {
             btn.onclick = () => {
-                config.presetBtns.forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                config.width.value = btn.dataset.w;
-                config.height.value = btn.dataset.h;
+                ui.width.value = btn.dataset.w; ui.height.value = btn.dataset.h;
                 update();
             };
         });
 
-        [config.width, config.height, config.gridCount, config.strokeWidth].forEach(el => el.oninput = update);
+        ui.colorCount.oninput = () => { generateRandomColors(); update(); };
+        [ui.width, ui.height, ui.gridCount, ui.strokeWidth].forEach(el => el.oninput = update);
 
-        config.downloadBtn.onclick = () => {
-            const svgData = generateSVG(true);
-            const blob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+        document.getElementById('downloadBtn').onclick = () => {
+            const svg = generateSVG(true);
+            const blob = new Blob([svg], {type: 'image/svg+xml'});
             const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `GridMaster_${config.width.value}x${config.height.value}.svg`;
-            link.click();
+            const a = document.createElement('a');
+            a.href = url; a.download = `GridMaster_Design_${Date.now()}.svg`; a.click();
         };
+
         window.onload = update;
     </script>
 </body>
 </html>
 
+```
