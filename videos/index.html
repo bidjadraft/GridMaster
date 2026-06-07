@@ -274,7 +274,7 @@
                         <span>تردد التموج</span>
                         <span id="freqValue" class="val-txt">1</span>
                     </div>
-                    <input type="range" id="waveFreq" min="0" max="15" step="0.1" value="1">
+                    <input type="range" id="waveFreq" min="0" max="15" value="1">
                 </div>
             </div>
         </div>
@@ -331,10 +331,7 @@
             const gridSize = parseInt(sizeInput.value);
             const speed = parseFloat(speedInput.value);
             const waveAmp = parseInt(waveAmpInput.value);
-            
-            // معادلة مطورة تبدأ من الصفر تماماً وتزداد بترددات صغيرة جداً وانسيابية
-            const uiFreq = parseFloat(waveFreqInput.value);
-            const waveFreq = uiFreq * 0.003; 
+            const waveFreq = parseInt(waveFreqInput.value) / 1000;
 
             let gradient = ctx.createRadialGradient(width/2, height/2, 50, width/2, height/2, height/1.1);
             gradient.addColorStop(0, `rgba(${Math.floor(rgb.r * 0.22)}, ${Math.floor(rgb.g * 0.06)}, ${Math.floor(rgb.b * 0.28)}, 1)`);
@@ -350,8 +347,7 @@
             let startX = offsetX % gridSize;
             for (let x = startX - gridSize * 2; x <= width + gridSize * 2; x += gridSize) {
                 ctx.beginPath();
-                // تم زيادة الخطوة إلى 25 بكسل لتخفيف الحمل الحسابي ومنع التعليق نهائياً
-                for (let y = 0; y <= height; y += 25) {
+                for (let y = 0; y <= height; y += 10) {
                     let waveX = x + Math.sin(y * waveFreq + wavePhase) * waveAmp;
                     if (y === 0) ctx.moveTo(waveX, y);
                     else ctx.lineTo(waveX, y);
@@ -362,8 +358,7 @@
             let startY = offsetY % gridSize;
             for (let y = startY - gridSize * 2; y <= height + gridSize * 2; y += gridSize) {
                 ctx.beginPath();
-                // تم زيادة الخطوة إلى 25 بكسل لتخفيف الحمل الحسابي ومنع التعليق نهائياً
-                for (let x = 0; x <= width; x += 25) {
+                for (let x = 0; x <= width; x += 10) {
                     let waveY = y + Math.sin(x * waveFreq + wavePhase) * waveAmp;
                     if (x === 0) ctx.moveTo(x, waveY);
                     else ctx.lineTo(x, waveY);
