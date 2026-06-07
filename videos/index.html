@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moving Grid</title>
+    <style>
+        :root {
+            --bg-dark: #050508;
+            --panel-bg: rgba(10, 10, 15, 0.75);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f3f4f6;
+            --text-muted: #6b7280;
+            --accent: #a040ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .preview-wrapper {
+            position: relative;
+            background: #000;
+            width: 360px;
+            height: 680px;
+            border-radius: 40px;
+            padding: 8px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 2px var(--panel-border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #canvasContainer {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            border-radius: 32px;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        #rightControlsHeader {
+            position: absolute;
+            top: 25px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 30;
+        }
+
+        .arrow-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            line-height: 1;
+        }
+
+        .arrow-btn.active, .arrow-btn:hover {
+            color: var(--text-main);
+            transform: scale(1.15);
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+        }
+
+        #topLeftExportContainer {
+            position: absolute;
+            top: 25px;
+            left: 20px;
+            z-index: 30;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+        }
+
+        #timeSelect {
+            background: rgba(10, 10, 15, 0.8);
+            color: var(--text-main);
+            border: 1px solid var(--panel-border);
+            border-radius: 10px;
+            font-size: 11px;
+            padding: 4px 8px;
+            outline: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        #recordBtn {
+            background: var(--text-main);
+            color: var(--bg-dark);
+            padding: 6px 14px;
+            font-size: 11px;
+            font-weight: 600;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        #recordBtn:disabled {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .progress-box {
+            display: none;
+            font-size: 9px;
+            color: #ffaa00;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+            font-weight: bold;
+        }
+
+        #sidebar {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            right: 12px;
+            background: var(--panel-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--panel-border);
+            padding: 12px;
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 10;
+            overflow: hidden;
+        }
+
+        .control-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .val-txt {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            outline: none;
+            margin-top: 2px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--text-main);
+            cursor: pointer;
+        }
+
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            background: none;
+        }
+
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch {
+            border: 1px solid var(--panel-border);
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="preview-wrapper">
+        <div id="canvasContainer">
+            
+            <div id="rightControlsHeader">
+                <button class="arrow-btn" data-dir="up">↑</button>
+                <button class="arrow-btn active" data-dir="down">↓</button>
+                <button class="arrow-btn" data-dir="right">→</button>
+                <button class="arrow-btn" data-dir="left">←</button>
+                <button class="arrow-btn" data-dir="up-right">↗</button>
+                <button class="arrow-btn" data-dir="up-left">↖</button>
+                <button class="arrow-btn" data-dir="down-right">↘</button>
+                <button class="arrow-btn" data-dir="down-left">↙</button>
+            </div>
+
+            <div id="topLeftExportContainer">
+                <select id="timeSelect">
+                    <option value="60">دقيقة واحدة</option>
+                    <option value="120">دقيقتان</option>
+                    <option value="180">3 دقائق</option>
+                    <option value="240">4 دقائق</option>
+                    <option value="300">5 دقائق</option>
+                </select>
+                <button id="recordBtn">تصدير</button>
+                <div class="progress-box" id="progressBox">المتبقي <span id="timer">0</span>ث</div>
+            </div>
+
+            <canvas id="gridCanvas" width="720" height="1280"></canvas>
+            
+            <div id="sidebar">
+                <div class="control-row">
+                    <span>اللون للمربعات</span>
+                    <input type="color" id="gridColor" value="#9d4edd">
+                </div>
+
+                <div>
+                    <div class="control-row">
+                        <span>حجم المربعات</span>
+                        <span id="sizeValue" class="val-txt">140</span>
+                    </div>
+                    <input type="range" id="gridSize" min="50" max="140" value="140">
+                </div>
+
+                <div>
+                    <div class="control-row">
+                        <span>السرعة</span>
+                        <span id="speedValue" class="val-txt">4</span>
+                    </div>
+                    <input type="range" id="speed" min="0" max="8" step="0.2" value="4">
+                </div>
+
+                <div>
+                    <div class="control-row">
+                        <span>قوة التموج</span>
+                        <span id="ampValue" class="val-txt">70</span>
+                    </div>
+                    <input type="range" id="waveAmp" min="0" max="70" value="70">
+                </div>
+
+                <div>
+                    <div class="control-row">
+                        <span>تردد التموج</span>
+                        <span id="freqValue" class="val-txt">1</span>
+                    </div>
+                    <input type="range" id="waveFreq" min="0" max="15" value="1">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gridCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        const colorInput = document.getElementById('gridColor');
+        const sizeInput = document.getElementById('gridSize');
+        const speedInput = document.getElementById('speed');
+        const waveAmpInput = document.getElementById('waveAmp');
+        const waveFreqInput = document.getElementById('waveFreq');
+        const recordBtn = document.getElementById('recordBtn');
+        const timeSelect = document.getElementById('timeSelect');
+        const progressBox = document.getElementById('progressBox');
+        const timerSpan = document.getElementById('timer');
+
+        const sizeValue = document.getElementById('sizeValue');
+        const speedValue = document.getElementById('speedValue');
+        const ampValue = document.getElementById('ampValue');
+        const freqValue = document.getElementById('freqValue');
+
+        const width = canvas.width;
+        const height = canvas.height;
+
+        let offsetX = 0, offsetY = 0;
+        let wavePhase = 0;
+        let currentDirection = 'down';
+
+        sizeInput.addEventListener('input', (e) => sizeValue.innerText = e.target.value);
+        speedInput.addEventListener('input', (e) => speedValue.innerText = e.target.value);
+        waveAmpInput.addEventListener('input', (e) => ampValue.innerText = e.target.value);
+        waveFreqInput.addEventListener('input', (e) => freqValue.innerText = e.target.value);
+
+        document.querySelectorAll('.arrow-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.arrow-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentDirection = e.target.getAttribute('data-dir');
+            });
+        });
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : { r: 138, g: 43, b: 226 };
+        }
+
+        function drawGrid() {
+            ctx.clearRect(0, 0, width, height);
+
+            const rgb = hexToRgb(colorInput.value);
+            const gridSize = parseInt(sizeInput.value);
+            const speed = parseFloat(speedInput.value);
+            const waveAmp = parseInt(waveAmpInput.value);
+            const waveFreq = parseInt(waveFreqInput.value) / 1000;
+
+            let gradient = ctx.createRadialGradient(width/2, height/2, 50, width/2, height/2, height/1.1);
+            gradient.addColorStop(0, `rgba(${Math.floor(rgb.r * 0.22)}, ${Math.floor(rgb.g * 0.06)}, ${Math.floor(rgb.b * 0.28)}, 1)`);
+            gradient.addColorStop(1, '#020104');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.strokeStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.55)`;
+            ctx.lineWidth = 3.5;
+            ctx.shadowBlur = 14;
+            ctx.shadowColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.75)`;
+
+            let startX = offsetX % gridSize;
+            for (let x = startX - gridSize * 2; x <= width + gridSize * 2; x += gridSize) {
+                ctx.beginPath();
+                for (let y = 0; y <= height; y += 10) {
+                    let waveX = x + Math.sin(y * waveFreq + wavePhase) * waveAmp;
+                    if (y === 0) ctx.moveTo(waveX, y);
+                    else ctx.lineTo(waveX, y);
+                }
+                ctx.stroke();
+            }
+
+            let startY = offsetY % gridSize;
+            for (let y = startY - gridSize * 2; y <= height + gridSize * 2; y += gridSize) {
+                ctx.beginPath();
+                for (let x = 0; x <= width; x += 10) {
+                    let waveY = y + Math.sin(x * waveFreq + wavePhase) * waveAmp;
+                    if (x === 0) ctx.moveTo(x, waveY);
+                    else ctx.lineTo(x, waveY);
+                }
+                ctx.stroke();
+            }
+
+            ctx.shadowBlur = 0;
+
+            const diagonalSpeed = speed / Math.sqrt(2);
+
+            if (currentDirection === 'down') offsetY += speed;
+            else if (currentDirection === 'up') offsetY -= speed;
+            else if (currentDirection === 'left') offsetX -= speed;
+            else if (currentDirection === 'right') offsetX += speed;
+            else if (currentDirection === 'up-right') { offsetY -= diagonalSpeed; offsetX += diagonalSpeed; }
+            else if (currentDirection === 'up-left') { offsetY -= diagonalSpeed; offsetX -= diagonalSpeed; }
+            else if (currentDirection === 'down-right') { offsetY += diagonalSpeed; offsetX += diagonalSpeed; }
+            else if (currentDirection === 'down-left') { offsetY += diagonalSpeed; offsetX -= diagonalSpeed; }
+
+            wavePhase += speed * 0.006;
+
+            requestAnimationFrame(drawGrid);
+        }
+
+        drawGrid();
+
+        recordBtn.addEventListener('click', () => {
+            const totalSeconds = parseInt(timeSelect.value);
+            recordBtn.disabled = true;
+            timeSelect.disabled = true;
+            recordBtn.innerText = 'انتظر..';
+            progressBox.style.display = 'block';
+
+            let timeLeft = totalSeconds;
+            timerSpan.innerText = timeLeft;
+            
+            const countdown = setInterval(() => {
+                timeLeft--;
+                timerSpan.innerText = timeLeft;
+                if (timeLeft <= 0) clearInterval(countdown);
+            }, 1000);
+
+            const stream = canvas.captureStream(30); 
+            const mediaRecorder = new MediaRecorder(stream, {
+                mimeType: 'video/webm;codecs=vp9',
+                bitsPerSecond: 6000000 
+            });
+
+            const chunks = [];
+            mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+
+            mediaRecorder.onstop = () => {
+                clearInterval(countdown);
+                const blob = new Blob(chunks, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `custom-grid-${currentDirection}.webm`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                recordBtn.disabled = false;
+                timeSelect.disabled = false;
+                recordBtn.innerText = 'تصدير';
+                progressBox.style.display = 'none';
+            };
+
+            mediaRecorder.start();
+            setTimeout(() => { if (mediaRecorder.state !== 'inactive') mediaRecorder.stop(); }, totalSeconds * 1000); 
+        });
+    </script>
+</body>
+</html>
